@@ -1,1 +1,1 @@
-# joint_NMF_similarity_measure_and_method
+# Joint_NMF_similarity_measure_and_method
