@@ -1,0 +1,129 @@
+import matplotlib.pyplot as plt
+import statistics as stats
+import math as m
+import random
+import numpy as np
+from copy  import deepcopy
+from similarity import sim
+from scipy.io import loadmat
+plt.rc('text', usetex=True)
+plt.style.use('ggplot')
+
+def listStats(numList):
+    """takes in a list of numbers and returns [average, standard deviation, 95% confidence interval]"""
+    avg = stats.mean(numList)
+    std = stats.stdev(numList)
+    sem = std / m.sqrt(len(numList))
+    z = 1.96 # 95% ci
+    ci = (avg - z*sem, avg + z*sem)
+    return [avg, std, ci]
+
+def plot_X_with_random(data, rank, num_trials = 50, num_iter = 1000):
+    """ sim_func should ideally start very similar and becomes monotonically less so """
+    R = np.random.uniform(size=X.shape)
+    errors = []
+    high_cis = []
+    low_cis = []
+    for pct in range(10):
+        pct /= 10
+        trial_errors = []
+        for trial in range(num_trials):
+            error = sim(data, data+pct*R, rank, num_iter = num_iter)
+            trial_errors.append(error)
+        error_avg, _, (low_ci, high_ci) = listStats(trial_errors)
+        low_cis.append(low_ci)
+        high_cis.append(high_ci)
+        errors.append(error_avg)
+    fig = plt.figure()
+    fig.gca().plot([x/10 for x in range(10)], errors, color='#324dbe')
+    fig.gca().fill_between([x/10 for x in range(10)], low_cis, high_cis, color='#324dbe', alpha=.15)
+    plt.xlabel('$\epsilon$')
+    plt.ylabel('$d(X_1, X_1 + \epsilon N)$')
+    plt.savefig('x_with_random')
+    plt.show()
+
+
+def large_subset(data, rank, num_trials = 50, num_iter = 1000):
+    smallest = 226
+    num_steps = 6
+    num_to_remove = 5
+    errors = []
+    high_cis = []
+    low_cis = []
+    for step in range(1, num_steps+1):
+        trial_errors = []
+        for trial in range(num_trials):
+            smaller_data = deepcopy(data)
+            for n in range(num_to_remove * step):
+                index = random.randint(0, smaller_data.shape[1]-1)
+                smaller_data = np.delete(smaller_data, index, 1)
+            trial_errors.append(sim(data, smaller_data, rank, num_iter=num_iter))
+        error_avg, _, (low_ci, high_ci) = listStats(trial_errors)
+        low_cis.append(low_ci)
+        high_cis.append(high_ci)
+        errors.append(error_avg)
+    errors.reverse()
+    low_cis.reverse()
+    high_cis.reverse()
+    fig = plt.figure()
+    fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], errors)
+    fig.gca().fill_between([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], low_cis, high_cis, color='#324dbe', alpha=.15)
+    plt.xlabel('$q$')
+    plt.ylabel('$d(X_1, X_2)$')
+    plt.savefig('largesubset')
+    plt.show()
+
+
+def run_experiments(data, rank):
+    num_trials = 50
+    # For scaled experiment
+    lambda_val = [0.1, 1, 10, 100]
+    # For permutation experiment
+    perm_data = deepcopy(data)
+    rng = np.random.default_rng()
+    # For random and noisy
+    R = np.random.uniform(size=X.shape)
+    # For noisy
+    noisy = data + R
+    
+    self_sum = 0
+    scaled_sum = 0
+    permuted_sum = 0
+    large_subset_sum = 0
+    noise_sum = 0
+    random_sum = 0
+    for i in range(num_trials):
+        self_sum += sim(data, data, rank)
+        scaled_sum += sim(data, np.random.choice(lambda_val) * data, rank)
+        rng.shuffle(data, axis = 1)
+        permuted_sum += sim(data, perm_data, rank)
+        smaller_data = deepcopy(data)
+        for _ in range(26):
+            index = random.randint(0, smaller_data.shape[1]-1)
+            smaller_data = np.delete(smaller_data, index, 1)
+        large_subset_sum += sim(data, smaller_data, rank)
+        noise_sum += sim(data, data + R, rank)
+        random_sum += sim(data, R, rank)
+    return self_sum/num_trials, scaled_sum/num_trials, permuted_sum/num_trials, large_subset_sum/num_trials, noise_sum/num_trials, random_sum/num_trials
+
+
+
+
+if __name__ == '__main__':
+    data = loadmat("Swimmer.mat")
+    X = data['X']
+    rank = 10
+    # plot_X_with_random(X, 10)
+    large_subset(X, 10)
+    # print(run_experiments(X, rank))
+    # print(sim(X, X[:, 5:], 10))
+    # Y = 1 - X
+    # R = np.random.uniform(size=X.shape)
+    # error = 0
+    # print(sim(X, X + R, 10, image_name="noise_basis"))
+    # for _ in range(50):
+    #     error += sim(X, Y, 10)/50
+    # print(error)
+    # print(run_experiments(X, 10))
+    # print(sim(X, R,10, image_name='random'))
+    # print(sim(X, X + R,10, image_name='noise_basis'))    
