@@ -4,4 +4,4 @@ Implements a distance measure for data sets.
 
 similarity.py contains our similarity measure, sim.
 
-swimmer_experiments.py contains the experiments we performed on the swimmer dataset.
+swimmer_experiments.py contains the experiments we performed on the Swimmer dataset.
