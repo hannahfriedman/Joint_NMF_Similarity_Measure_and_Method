@@ -3,9 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
-def sim(m1, m2, rank, verbose = False, num_iter=1000, image_name = None, basis_shape = (11,20)):
-    ''' jNMF into A, S1, S2 and measure similarity between rows of S1 and S2
-    randomly  sample values from 0 to max(max(S1[i]), max(S2[i]) and for each value give the difference in numbers above that value'''
+def sim(m1, m2, rank, verbose = False, num_iter = 1000, image_name = None, basis_shape = (11,20)):
+    ''' Use jNMF to decompose matrices into A, S1, S2 and measure similarity between rows of S1 and S2
+        Randomly sample values from 0 to max(max(S1[i]), max(S2[i]) and, for each value, gives the difference in numbers above that value
+    '''
     # Perform Joint NMF
     m1 = normalize(m1)
     m2 = normalize(m2)
@@ -52,7 +53,7 @@ def sim(m1, m2, rank, verbose = False, num_iter=1000, image_name = None, basis_s
 
 
 def normalize(m):
-    ''' Given a matrix m, return a new matrix which has all the columns of m scaled so thier meean is 1'''
+    ''' Given a matrix m, return a new matrix which has all the columns of m scaled so that their mean is 1'''
     new = np.zeros(m.shape)
     for col in range(m.shape[1]):
         new[:, col] = m[:, col]/(np.linalg.norm(m[:, col]))
