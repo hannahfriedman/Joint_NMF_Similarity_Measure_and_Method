@@ -17,7 +17,7 @@ def listStats(numList):
     ci = (avg - z*sem, avg + z*sem)
     return [avg, std, ci]
 
-def plot_X_with_random(data, rank, num_trials = 50, num_iter = 1000):
+def plot_X_with_random(data, rank, num_trials = 10, num_iter = 1000):
     """ Plot d(data, data + kR), where the entries in R are sampled i.i.d. from uniff([0,1]) averaged over num_trials trials 
     where k is in [0,1]"""
     R = np.random.uniform(size=X.shape)
@@ -129,3 +129,12 @@ def run_experiments(data, rank):
         noise_sum += sim(data, data + R, rank)
         random_sum += sim(data, R, rank)
     return self_sum/num_trials, scaled_sum/num_trials, permuted_sum/num_trials, large_subset_sum/num_trials, noise_sum/num_trials, random_sum/num_trials
+
+if __name__ == '__main__':
+    data = loadmat('swimmer.mat')
+    X = data['X']
+    rank = 10
+    # print(run_experiments(X, rank))
+    # large_subset(X, rank)
+    plot_X_with_random(X, rank)
+    
