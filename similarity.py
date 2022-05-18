@@ -56,5 +56,6 @@ def normalize(m):
     ''' Given a matrix m, return a new matrix which has all the columns of m scaled so that their mean is 1'''
     new = np.zeros(m.shape)
     for col in range(m.shape[1]):
-        new[:, col] = m[:, col]/(np.linalg.norm(m[:, col]))
+        if np.count_nonzero(np.round(col, 6)) != 0:               # If not all the entries are zero, we make the column have norm 1, otherwise leave it zero
+            new[:, col] = m[:, col]/(np.linalg.norm(m[:, col]))
     return new
