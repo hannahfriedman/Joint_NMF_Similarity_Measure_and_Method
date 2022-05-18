@@ -17,11 +17,9 @@ def listStats(numList):
     ci = (avg - z*sem, avg + z*sem)
     return [avg, std, ci]
 
-def plot_X_with_random(data, rank, num_trials = 10, num_iter = 1000):
+def plot_X_with_random(data, rank, num_trials = 50, num_iter = 1000):
     """ Plot d(data, data + kR), where the entries in R are sampled i.i.d. from uniff([0,1]) averaged over num_trials trials 
     where k is in [0,1]"""
-    R = np.random.uniform(size=X.shape)
-
     # Keep track of average errors and confidence intervals
     errors = []
     high_cis = []
@@ -33,6 +31,7 @@ def plot_X_with_random(data, rank, num_trials = 10, num_iter = 1000):
         # Keep track of the errors for each trial
         trial_errors = []
         for trial in range(num_trials):
+            R = np.random.uniform(size=X.shape)
             error = sim(data, data+pct*R, rank, num_iter = num_iter)
             trial_errors.append(error)
         # Compute the average and confidence interval
@@ -41,13 +40,16 @@ def plot_X_with_random(data, rank, num_trials = 10, num_iter = 1000):
         high_cis.append(high_ci)
         errors.append(error_avg)
     # Plot the data with confidence intervals
+    print(low_cis, high_cis)
     plt.style.use('ggplot')
     fig = plt.figure()
     fig.gca().plot([x/10 for x in range(10)], errors, color='#324dbe')
-    fig.gca().fill_between([x/10 for x in range(10)], low_cis, high_cis, color='#324dbe', alpha=.15)
+    # fig.gca().fill_between([x/10 for x in range(10)], low_cis, high_cis, color='#324dbe', alpha=0.15)
+    fig.gca().plot([x/10 for x in range(10)], low_cis, color='#324dbe', linestyle='dotted')
+    fig.gca().plot([x/10 for x in range(10)], high_cis, color='#324dbe', linestyle='dotted')    
     plt.xlabel('$\epsilon$')
     plt.ylabel('$d(X_1, X_1 + \epsilon N)$')
-    plt.savefig('x_with_random')
+    plt.savefig('x_with_random.eps')
     plt.show()
 
 
@@ -87,11 +89,13 @@ def large_subset(data, rank, num_trials = 50, num_iter = 1000):
     # Plot the data
     plt.style.use('ggplot')
     fig = plt.figure()
-    fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], errors)  # This gives the percentage of columns we kept
-    fig.gca().fill_between([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], low_cis, high_cis, color='#324dbe', alpha=.15)
+    fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], errors, color='#324dbe')  # This gives the percentage of columns we kept
+    # fig.gca().fill_between([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], low_cis, high_cis, color='#324dbe', alpha=.15)
+    fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], low_cis, color='#324dbe', linestyle='dotted')
+    fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], high_cis, color='#324dbe', linestyle='dotted')    
     plt.xlabel('$q$')
     plt.ylabel('$d(X_1, X_2)$')
-    plt.savefig('largesubset')
+    plt.savefig('largesubset.eps')
     plt.show()
 
 
