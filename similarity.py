@@ -55,7 +55,8 @@ def sim(m1, m2, rank, verbose = False, num_iter = 1000, image_name = None, basis
 def normalize(m):
     ''' Given a matrix m, return a new matrix which has all the columns of m scaled so that their mean is 1'''
     new = np.zeros(m.shape)
+    avg = sum([np.linalg.norm(m[:,col]) for col in range(m.shape[1])])/m.shape[1]
     for col in range(m.shape[1]):
-        if np.count_nonzero(np.round(col, 6)) != 0:               # If not all the entries are zero, we make the column have norm 1, otherwise leave it zero
+        if (np.linalg.norm(m[:, col])) >= 0.05 * avg:
             new[:, col] = m[:, col]/(np.linalg.norm(m[:, col]))
     return new

@@ -138,7 +138,7 @@ if __name__ == '__main__':
     data = loadmat('swimmer.mat')
     X = data['X']
     rank = 10
-    # print(run_experiments(X, rank))
+    print(run_experiments(X, rank))
     # large_subset(X, rank)
-    plot_X_with_random(X, rank)
+    # plot_X_with_random(X, rank)
     
