@@ -2,6 +2,9 @@ from sklearn.decomposition import NMF
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import torch
+from chamferdist import ChamferDistance
+
 
 def sim(m1, m2, rank, verbose = False, num_iter = 1000, image_name = None, basis_shape = (11,20)):
     ''' Use jNMF to decompose matrices into A, S1, S2 and measure similarity between rows of S1 and S2
@@ -60,3 +63,22 @@ def normalize(m):
         if (np.linalg.norm(m[:, col])) >= 0.05 * avg:
             new[:, col] = m[:, col]/(np.linalg.norm(m[:, col]))
     return new
+
+
+def compute_chamfer_dist(X: np.array, Y: np.array) -> float:
+    ''' Compute the Chamfer distance between two arrays X and Y'''
+    X = normalize(X)
+    Y = normalize(Y)
+
+    # We have to reshape the data into 3d tensors for the metric to work
+    if len(X.shape) == 2:
+        X = np.reshape(X, (*(X.shape), 1))
+    if len(Y.shape) == 2:
+        Y = np.reshape(Y, (*(Y.shape), 1))
+
+    # Compute and return distance
+    x_cloud = torch.tensor(X).float()
+    y_cloud = torch.tensor(Y).float()
+    chamferDist = ChamferDistance()
+    dist_forward = chamferDist(x_cloud, y_cloud, bidirectional = True)
+    return dist_forward.detach().cpu().item()
