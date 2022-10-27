@@ -65,7 +65,7 @@ def normalize(m):
     return new
 
 
-def compute_chamfer_dist(X: np.array, Y: np.array) -> float:
+def compute_chamfer_dist(X: np.array, Y: np.array, exp=False) -> float:
     ''' Compute the Chamfer distance between two arrays X and Y'''
     X = normalize(X)
     Y = normalize(Y)
@@ -81,4 +81,6 @@ def compute_chamfer_dist(X: np.array, Y: np.array) -> float:
     y_cloud = torch.tensor(Y).float()
     chamferDist = ChamferDistance()
     dist_forward = chamferDist(x_cloud, y_cloud, bidirectional = True)
+    if exp:
+        return np.exp(dist_forward.detach().cpu().item())
     return dist_forward.detach().cpu().item()
