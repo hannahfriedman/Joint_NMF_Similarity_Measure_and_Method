@@ -24,12 +24,12 @@ for category in categories:
 
 warnings.filterwarnings('ignore')
 
-numtrials = 1
+numtrials = 50
 
 dist_matrix = np.zeros([20,20])
 
 with tqdm(total=numtrials * 10 * 21) as pbar:
-    for trial in tqdm(range(numtrials),display=False):
+    for trial in tqdm(range(numtrials),display=True):
         twenty_news_cats = list()
         for category in categories:
             cat_data = skds.fetch_20newsgroups(categories=[category],remove=('headers', 'footers', 'quotes'))
@@ -38,8 +38,8 @@ with tqdm(total=numtrials * 10 * 21) as pbar:
             cat_vecs_dense = np.asarray(scpsp.csr_matrix.todense(cat_vecs))
             twenty_news_cats.append(cat_vecs_dense)
         
-        for i in tqdm(range(20),display=False):
-            for j in tqdm(range(i,20),display=False):
+        for i in tqdm(range(20),display=True):
+            for j in tqdm(range(i,20),display=True):
                 dist_value = compute_chamfer_dist(twenty_news_cats[i],twenty_news_cats[j], exp=True)
                 dist_matrix[i,j] += dist_value
                 if i != j:
@@ -64,6 +64,12 @@ ax.set_yticklabels(label_list,fontsize=7)
 for tick in ax.get_xticklabels():
     tick.set_rotation(90)
 cbar = fig.colorbar(img)
+label_list = []
+for i in cbar.ax.get_yticklabels():
+    a = float(i.get_text())
+    label_list.append(a)
+label_list[0] = 0.0000
+cbar.ax.set_yticklabels([str(label) for label in label_list])
 fig.tight_layout()
 fig.show()
 fig.savefig('avg_20news_chamfer_distance.eps', format='eps')

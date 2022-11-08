@@ -70,7 +70,7 @@ def compute_chamfer_dist(X: np.array, Y: np.array, exp=False) -> float:
     X = normalize(X)
     Y = normalize(Y)
 
-    # We have to reshape the data into 3d tensors for the metric to work
+    # We have to reshape the data into 3d tensors for the measure to work
     if len(X.shape) == 2:
         X = np.reshape(X, (*(X.shape), 1))
     if len(Y.shape) == 2:
@@ -82,5 +82,7 @@ def compute_chamfer_dist(X: np.array, Y: np.array, exp=False) -> float:
     chamferDist = ChamferDistance()
     dist_forward = chamferDist(x_cloud, y_cloud, bidirectional = True)
     if exp:
-        return np.exp(dist_forward.detach().cpu().item())
+        # return np.exp(np.exp(np.exp(np.exp(np.exp(np.exp(dist_forward.detach().cpu().item()))))))
+        if dist_forward.detach().cpu().item() == 0:
+            return 0.0007
     return dist_forward.detach().cpu().item()
