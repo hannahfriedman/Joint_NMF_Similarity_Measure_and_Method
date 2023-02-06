@@ -68,13 +68,13 @@ label_list = [categories[i] for i in order]
 
 labels = open("jnmf_labels.txt", 'w')
 for label in label_list:
-    labels.write(str(label) + '\n')
+    labels.write('"' + str(label) + '",' + '\n')
 labels.close()
 
 ax.set_xticks(np.linspace(0, 19, num=20))
 ax.set_yticks(np.linspace(0, 19, num=20))
-ax.set_xticklabels(label_list,FontSize=9)
-ax.set_yticklabels(label_list,FontSize=9)
+ax.set_xticklabels(label_list,fontsize=9)
+ax.set_yticklabels(label_list,fontsize=9)
 for tick in ax.get_xticklabels():
     tick.set_rotation(90)
 fig.colorbar(img)
