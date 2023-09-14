@@ -39,6 +39,7 @@ def noisy_data(data, rank, num_trials = 50, num_iter = 1000):
             R = np.random.uniform(size=X.shape)
             trial_errors.append(sim(data, data+pct*R, rank, num_iter = num_iter)/SIM_NORM_FACTOR)
             chamfer_errors.append(compute_chamfer_dist(data, data+pct*R)/CHAMFER_NORM_FACTOR)
+            print(trial)
 
         # Compute the average and confidence interval
         error_avg, _, (low_ci, high_ci) = listStats(trial_errors)
@@ -52,7 +53,7 @@ def noisy_data(data, rank, num_trials = 50, num_iter = 1000):
         high_cis[1].append(high_ci)
         errors[1].append(error_avg)            
         errors.append(error_avg)
-    return (errors[0], high_cis[0], low_cis[0], '#324dbe'), (errors[1], low_cis[1], high_cis[1], "#009E73")
+    return (errors[0], high_cis[0], low_cis[0], '#324dbe', 'jNMF Distance Measure'), (errors[1], low_cis[1], high_cis[1], "#be324d", 'Chamfers Distance Measure')
 
 
 
@@ -93,14 +94,14 @@ def large_subset(data, rank, num_trials = 50, num_iter=1000):
         high_cis[1].append(high_ci)
         errors[1].append(error_avg)
 
-        print(chamfer_errors)
+        print(trial)
 
     # Reverse the data so that we go from smaller matrices to bigger matrices, reading left to right
     for i in [0, 1]:
         errors[i].reverse()
         low_cis[i].reverse()
         high_cis[i].reverse()
-    return (errors[0], low_cis[0], high_cis[0],'#324dbe'), (errors[1], low_cis[1], high_cis[1], "#009E73")
+    return (errors[0], low_cis[0], high_cis[0],'#324dbe', 'jNMF Distance Measure'), (errors[1], low_cis[1], high_cis[1], "#be324d", 'Chamfers Distance Measure')
 
 
 
@@ -153,11 +154,12 @@ def plot_data_with_noise(data: list) -> None:
     # Plot the data with confidence intervals
     plt.style.use('ggplot')
     fig = plt.figure()
-    for errors, low_cis, high_cis, color in data:
-        fig.gca().plot([x/10 for x in range(10)], errors, color=color)
+    for errors, low_cis, high_cis, color, label in data:
+        fig.gca().plot([x/10 for x in range(10)], errors, color=color, label=label)
         # fig.gca().fill_between([x/10 for x in range(10)], low_cis, high_cis, color='#324dbe', alpha=0.15)
         fig.gca().plot([x/10 for x in range(10)], low_cis, color=color, linestyle='dotted')
-        fig.gca().plot([x/10 for x in range(10)], high_cis, color=color, linestyle='dotted')    
+        fig.gca().plot([x/10 for x in range(10)], high_cis, color=color, linestyle='dotted')
+    plt.legend()
     plt.xlabel('$\epsilon$')
     plt.ylabel('$d(X_1, X_1 + \epsilon N)$')
     plt.savefig('x_with_random.eps')
@@ -173,10 +175,11 @@ def plot_large_subset(data: list) -> None:
 
     plt.style.use('ggplot')
     fig = plt.figure()
-    for errors, low_cis, high_cis, color in data:
-        fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], errors, color=color)  # This gives the percentage of columns we kept
+    for errors, low_cis, high_cis, color, label in data:
+        fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], errors, color=color, label=label)  # This gives the percentage of columns we kept
         fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], low_cis, color=color, linestyle='dotted')
-        fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], high_cis, color=color, linestyle='dotted')    
+        fig.gca().plot([(smallest + num_to_remove * i) * 100/256 for i in range(num_steps)], high_cis, color=color, linestyle='dotted')
+    plt.legend()
     plt.xlabel('$q$')
     plt.ylabel('$d(X_1, X_2)$')
     plt.savefig('largesubset.eps')
@@ -192,7 +195,7 @@ if __name__ == '__main__':
     SIM_NORM_FACTOR = 1    
     # print(run_experiments(X, rank))
     # print(run_experiments_c(X, rank))
-    plot_large_subset(large_subset(X, rank, num_trials=50))
+    # plot_large_subset(large_subset(X, rank, num_trials=50))
     plot_data_with_noise(noisy_data(X, rank, num_trials=50))
     # large_subset_c(X, rank)
     # plot_X_with_random_c(X, rank)
