@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import torch
-from chamferdist import ChamferDistance
+#from chamferdist import ChamferDistance
 
 
 def sim(m1, m2, rank, verbose = False, num_iter = 1000, image_name = None, basis_shape = (11,20)):
